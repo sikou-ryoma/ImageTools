@@ -10,7 +10,8 @@ internal sealed class AppSettings
 
     public OutputSettings Output { get; set; } = new();
 
-    public List<string> Extensions { get; set; } = [];
+    // 修正: 空のリストで初期化する（コンパイルエラー回避）
+    public List<string> Extensions { get; set; } = new List<string>();
 }
 
 internal sealed class ResizeSettings

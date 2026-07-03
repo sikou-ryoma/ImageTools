@@ -5,7 +5,8 @@
 	  <UseWindowsForms>true</UseWindowsForms>
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
-	  <AssemblyName>Setup</AssemblyName>
+	  <AssemblyName>ImageResizer</AssemblyName>
+      <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,5 @@
 ﻿using ImageResizer.Models;
 
-
 namespace ImageResizer.Helpers;
 
 internal sealed class FileHelper
@@ -15,14 +14,34 @@ internal sealed class FileHelper
     /// <summary>
     /// Inputフォルダの絶対パス
     /// </summary>
-    public string InputDirectory =>
-        Path.Combine(AppContext.BaseDirectory, _settings.InputFolder);
+    public string InputDirectory
+    {
+        get
+        {
+            if (Path.IsPathRooted(_settings.InputFolder))
+            {
+                return _settings.InputFolder;
+            }
+
+            return Path.Combine(AppContext.BaseDirectory, _settings.InputFolder);
+        }
+    }
 
     /// <summary>
     /// Outputフォルダの絶対パス
     /// </summary>
-    public string OutputDirectory =>
-        Path.Combine(AppContext.BaseDirectory, _settings.OutputFolder);
+    public string OutputDirectory
+    {
+        get
+        {
+            if (Path.IsPathRooted(_settings.OutputFolder))
+            {
+                return _settings.OutputFolder;
+            }
+
+            return Path.Combine(AppContext.BaseDirectory, _settings.OutputFolder);
+        }
+    }
 
     /// <summary>
     /// Inputフォルダが存在するか
