@@ -10,7 +10,7 @@ internal static class AppConfig
     public static void Initialize()
     {
         IConfiguration config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
+            .SetBasePath(Path.Combine(AppContext.BaseDirectory, "Config"))
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
             .Build();
 
