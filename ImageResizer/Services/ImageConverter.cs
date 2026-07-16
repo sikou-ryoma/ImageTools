@@ -53,10 +53,12 @@ internal sealed class ImageConverter
         // 入力フォルダ内のディレクトリ構造を再現（空フォルダ含む）
         try
         {
+            string topFolder = Path.GetFileName(_fileHelper.InputDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
             foreach (string dir in _fileHelper.GetAllDirectories())
             {
                 string relativeDir = Path.GetRelativePath(_fileHelper.InputDirectory, dir);
-                string outDir = Path.Combine(_fileHelper.OutputDirectory, relativeDir);
+                string outDir = Path.Combine(_fileHelper.OutputDirectory, topFolder, relativeDir);
                 Directory.CreateDirectory(outDir);
             }
         }
@@ -95,7 +97,7 @@ internal sealed class ImageConverter
 
                 _imageResizer.Resize(inputPath, outputPath);
 
-                Console.WriteLine(" → 変換成功");
+                Console.WriteLine(" → 変換完了");
 
                 success++;
             }
@@ -121,8 +123,6 @@ internal sealed class ImageConverter
         Console.WriteLine($"失敗 : {error}");
 
         Console.WriteLine("==========");
-
-        Console.WriteLine("※画像以外のファイルは無視されました。");
 
     }
 }

@@ -14,7 +14,7 @@ internal class Program
         {
             AppConfig.Initialize();
 
-            Console.WriteLine($"{AppConfig.Settings.AppName} v{AppConfig.Settings.AppVersion}");
+            Console.WriteLine($"{AppConfig.Settings.AppName} - v{AppConfig.Settings.AppVersion}");
             Console.WriteLine("処理を開始します。");
 
             // コマンドライン引数を優先して入力フォルダを取得

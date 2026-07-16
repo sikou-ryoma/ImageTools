@@ -129,21 +129,13 @@ internal sealed class FileHelper
     /// </summary>
     public string GetOutputPathForConversion(string inputPath)
     {
-        // 基準を BaseInputDirectory から InputDirectory に変更
-        string relativePath =
-            Path.GetRelativePath(InputDirectory, inputPath);
+        string relativePath = Path.GetRelativePath(InputDirectory, inputPath);
+        string topFolder = Path.GetFileName(InputDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        string outputPath = Path.Combine(OutputDirectory, topFolder, relativePath);
 
-        string outputPath =
-            Path.Combine(OutputDirectory, relativePath);
+        outputPath = Path.ChangeExtension(outputPath, _settings.Output.Extension);
 
-        outputPath =
-            Path.ChangeExtension(
-                outputPath,
-                _settings.Output.Extension);
-
-        string? directory =
-            Path.GetDirectoryName(outputPath);
-
+        string? directory = Path.GetDirectoryName(outputPath);
         if (!string.IsNullOrWhiteSpace(directory))
         {
             Directory.CreateDirectory(directory);
@@ -158,16 +150,11 @@ internal sealed class FileHelper
     /// </summary>
     public string GetOutputPathForCopy(string inputPath)
     {
-        // 基準を BaseInputDirectory から InputDirectory に変更
-        string relativePath =
-            Path.GetRelativePath(InputDirectory, inputPath);
+        string relativePath = Path.GetRelativePath(InputDirectory, inputPath);
+        string topFolder = Path.GetFileName(InputDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        string outputPath = Path.Combine(OutputDirectory, topFolder, relativePath);
 
-        string outputPath =
-            Path.Combine(OutputDirectory, relativePath);
-
-        string? directory =
-            Path.GetDirectoryName(outputPath);
-
+        string? directory = Path.GetDirectoryName(outputPath);
         if (!string.IsNullOrWhiteSpace(directory))
         {
             Directory.CreateDirectory(directory);
