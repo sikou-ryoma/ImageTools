@@ -30,39 +30,59 @@ internal sealed class ImageConverter
             return;
         }
 
+        // 出力ルート作成
         _fileHelper.CreateOutputDirectory();
 
-        List<string> files =
-            _fileHelper.GetImageFiles().ToList();
+        // 入力フォルダ内のディレクトリ構造を再現（空フォルダ含む）
+        try
+        {
+            foreach (string dir in _fileHelper.GetAllDirectories())
+            {
+                string relativeDir = Path.GetRelativePath(_fileHelper.InputDirectory, dir);
+                string outDir = Path.Combine(_fileHelper.OutputDirectory, relativeDir);
+                Directory.CreateDirectory(outDir);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("ディレクトリ再現に失敗しました:");
+            Console.WriteLine(ex.Message);
+            return;
+        }
 
-        Console.WriteLine($"対象画像：{files.Count}件");
+        List<string> files =
+            _fileHelper.GetAllFiles().ToList();
+
+        Console.WriteLine($"対象ファイル：{files.Count}件");
         Console.WriteLine();
 
         int success = 0;
         int error = 0;
+        int index = 0;
 
         foreach (string inputPath in files)
         {
+            index++;
+
             try
             {
-                string outputPath =
-                    _fileHelper.GetOutputPath(inputPath);
+                string extension = Path.GetExtension(inputPath).ToLowerInvariant();
 
                 Console.WriteLine(
-                    $"[{success + error + 1}/{files.Count}] " +
-                    Path.GetFileName(inputPath));
+                    $"[{index}/{files.Count}] {Path.GetFileName(inputPath)}");
 
-                _imageResizer.Resize(
-                    inputPath,
-                    outputPath);
+                string outputPath = _fileHelper.GetOutputPathForConversion(inputPath);
+
+                _imageResizer.Resize(inputPath, outputPath);
 
                 success++;
             }
+
             catch (Exception ex)
             {
                 error++;
 
-                Console.WriteLine($"エラー");
+                Console.WriteLine("エラー");
 
                 Console.WriteLine(ex.Message);
 
@@ -79,5 +99,8 @@ internal sealed class ImageConverter
         Console.WriteLine($"失敗 : {error}");
 
         Console.WriteLine("==========");
+
+        Console.WriteLine("※画像以外のファイルは無視されました。");
+
     }
 }

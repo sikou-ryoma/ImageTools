@@ -28,6 +28,31 @@ internal sealed class FileHelper
     }
 
     /// <summary>
+    /// 入力フォルダの親ディレクトリ（相対パスの基準）
+    /// 親が取れない場合は InputDirectory を返す
+    /// </summary>
+    private string BaseInputDirectory
+    {
+        get
+        {
+            try
+            {
+                var parent = Directory.GetParent(InputDirectory);
+                if (parent != null && !string.IsNullOrWhiteSpace(parent.FullName))
+                {
+                    return parent.FullName;
+                }
+            }
+            catch
+            {
+                // Fall through to return InputDirectory
+            }
+
+            return InputDirectory;
+        }
+    }
+
+    /// <summary>
     /// Outputフォルダの絶対パス
     /// </summary>
     public string OutputDirectory
@@ -60,20 +85,34 @@ internal sealed class FileHelper
     }
 
     /// <summary>
-    /// 対象画像を取得
+    /// 入力ディレクトリ内のすべてのファイルを取得（画像に限定しない）
     /// </summary>
-    public IEnumerable<string> GetImageFiles()
+    public IEnumerable<string> GetAllFiles()
     {
         return Directory
             .EnumerateFiles(
                 InputDirectory,
                 "*.*",
-                SearchOption.AllDirectories)
-            .Where(IsImageFile);
+                SearchOption.AllDirectories);
     }
 
     /// <summary>
-    /// 画像か判定
+    /// 入力ディレクトリ内のすべてのディレクトリを取得（空フォルダ再現用）
+    /// 入力フォルダ自身も含める
+    /// </summary>
+    public IEnumerable<string> GetAllDirectories()
+    {
+        // まず入力フォルダ自身を返す（出力側に選択フォルダ名を作るため）
+        yield return InputDirectory;
+
+        foreach (var dir in Directory.EnumerateDirectories(InputDirectory, "*", SearchOption.AllDirectories))
+        {
+            yield return dir;
+        }
+    }
+
+    /// <summary>
+    /// 画像か判定（既存メソッドを保持）
     /// </summary>
     public bool IsImageFile(string path)
     {
@@ -83,12 +122,13 @@ internal sealed class FileHelper
     }
 
     /// <summary>
-    /// 出力先パスを生成
+    /// 出力先パスを生成（変換して拡張子を置き換える：HEIC -> 設定の出力拡張子）
+    /// 相対パスは BaseInputDirectory を基準にする（選択フォルダを含める）
     /// </summary>
-    public string GetOutputPath(string inputPath)
+    public string GetOutputPathForConversion(string inputPath)
     {
         string relativePath =
-            Path.GetRelativePath(InputDirectory, inputPath);
+            Path.GetRelativePath(BaseInputDirectory, inputPath);
 
         string outputPath =
             Path.Combine(OutputDirectory, relativePath);
@@ -97,6 +137,29 @@ internal sealed class FileHelper
             Path.ChangeExtension(
                 outputPath,
                 _settings.Output.Extension);
+
+        string? directory =
+            Path.GetDirectoryName(outputPath);
+
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        return outputPath;
+    }
+
+    /// <summary>
+    /// 出力先パスを生成（拡張子を保持してそのままコピーする用）
+    /// 相対パスは BaseInputDirectory を基準にする（選択フォルダを含める）
+    /// </summary>
+    public string GetOutputPathForCopy(string inputPath)
+    {
+        string relativePath =
+            Path.GetRelativePath(BaseInputDirectory, inputPath);
+
+        string outputPath =
+            Path.Combine(OutputDirectory, relativePath);
 
         string? directory =
             Path.GetDirectoryName(outputPath);
