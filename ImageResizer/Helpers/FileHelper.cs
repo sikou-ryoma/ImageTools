@@ -1,4 +1,6 @@
-﻿using ImageResizer.Models;
+﻿using System.IO;
+using System.Collections.Generic;
+using ImageResizer.Models;
 
 namespace ImageResizer.Helpers;
 
@@ -123,12 +125,13 @@ internal sealed class FileHelper
 
     /// <summary>
     /// 出力先パスを生成（変換して拡張子を置き換える：HEIC -> 設定の出力拡張子）
-    /// 相対パスは BaseInputDirectory を基準にする（選択フォルダを含める）
+    /// 相対パスは InputDirectory を基準にする（選択フォルダを含める）
     /// </summary>
     public string GetOutputPathForConversion(string inputPath)
     {
+        // 基準を BaseInputDirectory から InputDirectory に変更
         string relativePath =
-            Path.GetRelativePath(BaseInputDirectory, inputPath);
+            Path.GetRelativePath(InputDirectory, inputPath);
 
         string outputPath =
             Path.Combine(OutputDirectory, relativePath);
@@ -151,12 +154,13 @@ internal sealed class FileHelper
 
     /// <summary>
     /// 出力先パスを生成（拡張子を保持してそのままコピーする用）
-    /// 相対パスは BaseInputDirectory を基準にする（選択フォルダを含める）
+    /// 相対パスは InputDirectory を基準にする（選択フォルダを含める）
     /// </summary>
     public string GetOutputPathForCopy(string inputPath)
     {
+        // 基準を BaseInputDirectory から InputDirectory に変更
         string relativePath =
-            Path.GetRelativePath(BaseInputDirectory, inputPath);
+            Path.GetRelativePath(InputDirectory, inputPath);
 
         string outputPath =
             Path.Combine(OutputDirectory, relativePath);

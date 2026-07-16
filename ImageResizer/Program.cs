@@ -14,6 +14,9 @@ internal class Program
         {
             AppConfig.Initialize();
 
+            Console.WriteLine($"{AppConfig.Settings.AppName} v{AppConfig.Settings.AppVersion}");
+            Console.WriteLine("処理を開始します。");
+
             // コマンドライン引数を優先して入力フォルダを取得
             string? inputFolder = args.Length > 0 ? args[0] : null;
 

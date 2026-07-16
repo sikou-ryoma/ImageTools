@@ -1,4 +1,8 @@
-﻿using ImageResizer.Helpers;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using ImageResizer.Helpers;
 using ImageResizer.Models;
 
 namespace ImageResizer.Services;
@@ -30,6 +34,19 @@ internal sealed class ImageConverter
             return;
         }
 
+        // 入力/出力の衝突チェック（正規化して比較）
+        string inputFull = Path.GetFullPath(_fileHelper.InputDirectory)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string outputFull = Path.GetFullPath(_fileHelper.OutputDirectory)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        if (string.Equals(inputFull, outputFull, StringComparison.OrdinalIgnoreCase)
+            || outputFull.StartsWith(inputFull + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("入力フォルダと出力フォルダが同じ、または出力が入力のサブフォルダになっています。設定を確認してください。");
+            return;
+        }
+
         // 出力ルート作成
         _fileHelper.CreateOutputDirectory();
 
@@ -50,8 +67,11 @@ internal sealed class ImageConverter
             return;
         }
 
+        // 画像ファイルのみを対象に列挙
         List<string> files =
-            _fileHelper.GetAllFiles().ToList();
+            _fileHelper.GetAllFiles()
+                       .Where(p => _fileHelper.IsImageFile(p))
+                       .ToList();
 
         Console.WriteLine($"対象ファイル：{files.Count}件");
         Console.WriteLine();
@@ -68,12 +88,14 @@ internal sealed class ImageConverter
             {
                 string extension = Path.GetExtension(inputPath).ToLowerInvariant();
 
-                Console.WriteLine(
+                Console.Write(
                     $"[{index}/{files.Count}] {Path.GetFileName(inputPath)}");
 
                 string outputPath = _fileHelper.GetOutputPathForConversion(inputPath);
 
                 _imageResizer.Resize(inputPath, outputPath);
+
+                Console.WriteLine(" → 変換成功");
 
                 success++;
             }
@@ -84,7 +106,7 @@ internal sealed class ImageConverter
 
                 Console.WriteLine("エラー");
 
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.ToString());
 
                 Console.WriteLine();
             }
