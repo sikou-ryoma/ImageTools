@@ -27,7 +27,8 @@ internal class Program
                 {
                     Description = "入力フォルダを選択してください。",
                     UseDescriptionForTitle = true,
-                    SelectedPath = AppContext.BaseDirectory
+                    SelectedPath = Environment.GetFolderPath(
+                        Environment.SpecialFolder.MyDocuments)
                 };
 
                 if (dialog.ShowDialog() == DialogResult.OK)
